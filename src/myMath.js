@@ -40,6 +40,23 @@ class Vec4 {
             this.z / this.length(), 
             this.w / this.length())
     }
+
+    add(vec)
+    {
+        this.position.x += vec.position.x;
+        this.position.y += vec.position.y;
+        this.position.z += vec.position.z;
+        this.position.w += vec.position.w;
+    }
+
+    sub(vec)
+    {
+        this.position.x -= vec.position.x;
+        this.position.y -= vec.position.y;
+        this.position.z -= vec.position.z;
+        this.position.w -= vec.position.w;
+    }
+
 }
 
 
@@ -99,28 +116,42 @@ class Vec3 {
         let rotateMatX = Mat4.zero();
         rotateMatX.set(0, 0, 1);
         rotateMatX.set(1, 1, Math.cos(thetaX));
-        rotateMatX.set(1, 2, -Math.sin(thetaX))
-        rotateMatX.set(2, 1, Math.sin(thetaX))
-        rotateMatX.set(2, 2, Math.cos(thetaX))
+        rotateMatX.set(1, 2, -Math.sin(thetaX));
+        rotateMatX.set(2, 1, Math.sin(thetaX));
+        rotateMatX.set(2, 2, Math.cos(thetaX));
 
         let rotateMatY = Mat4.zero();
         rotateMatX.set(0, 0, 1);
         rotateMatX.set(1, 1, Math.cos(thetaX));
-        rotateMatX.set(1, 2, -Math.sin(thetaX))
-        rotateMatX.set(2, 1, Math.sin(thetaX))
-        rotateMatX.set(2, 2, Math.cos(thetaX))
+        rotateMatX.set(1, 2, -Math.sin(thetaX));
+        rotateMatX.set(2, 1, Math.sin(thetaX));
+        rotateMatX.set(2, 2, Math.cos(thetaX));
 
         let rotateMatZ = Mat4.zero();
         rotateMatX.set(0, 0, 1);
         rotateMatX.set(1, 1, Math.cos(thetaX));
-        rotateMatX.set(1, 2, -Math.sin(thetaX))
-        rotateMatX.set(2, 1, Math.sin(thetaX))
-        rotateMatX.set(2, 2, Math.cos(thetaX))
+        rotateMatX.set(1, 2, -Math.sin(thetaX));
+        rotateMatX.set(2, 1, Math.sin(thetaX));
+        rotateMatX.set(2, 2, Math.cos(thetaX));
 
     //    this.position = {
     //        x: tX*Math.cos(theta) - tY*Math.sin(theta) + center.x,
     //        y: tX*Math.sin(theta) + tY*Math.cos(theta) + center.x
     //    };
+    }
+
+    add(vec)
+    {
+        this.position.x += vec.position.x;
+        this.position.y += vec.position.y;
+        this.position.z += vec.position.z;
+    }
+
+    sub(vec)
+    {
+        this.position.x -= vec.position.x;
+        this.position.y -= vec.position.y;
+        this.position.z -= vec.position.z;
     }
 
 }
@@ -180,6 +211,18 @@ class Vec2 {
         };
     }
 
+    add(vec)
+    {
+        this.position.x += vec.position.x;
+        this.position.y += vec.position.y;
+    }
+
+    sub(vec)
+    {
+        this.position.x -= vec.position.x;
+        this.position.y -= vec.position.y;
+    }
+
 }
 
 class Mat4
@@ -211,6 +254,30 @@ class Mat4
         this.value[x][y] = v;
     }
 
+    add(mat)
+    {
+        for(i = 0; i < 4; i++)
+        {
+            for(j = 0; j < 4; j++)
+            {
+                this.value[i][j] += mat[i][j];
+            }
+        }
+        return this.value;
+    }
+
+    sub(mat)
+    {
+        for(i = 0; i < 4; i++)
+        {
+            for(j = 0; j < 4; j++)
+            {
+                this.value[i][j] -= mat[i][j];
+            }
+        }
+        return this.value;
+    }
+
 }
 
 class Mat3
@@ -239,6 +306,46 @@ class Mat3
         if (y < 0 || y > 2) {return;}
         this.value[x][y] = v;
     }
+
+    add(mat)
+    {
+        for(i = 0; i < 3; i++)
+        {
+            for(j = 0; j < 3; j++)
+            {
+                this.value[i][j] += mat[i][j];
+            }
+        }
+        return this.value;
+    }
+
+    sub(mat)
+    {
+        for(i = 0; i < 3; i++)
+        {
+            for(j = 0; j < 3; j++)
+            {
+                this.value[i][j] -= mat[i][j];
+            }
+        }
+        return this.value;
+    }
+}
+
+class Qtn
+{
+    constructor(aX, aY, aZ, aW)
+    {
+        this.position = {
+            x: aX, y: aY, z: aZ, w: aW
+        }
+    }
+
+    inverse()
+    {
+        let inv = new Qtn(-this.x, -this.y, -this.z, this.w);
+    }
+
 }
 
 class MyMathLib
@@ -248,10 +355,10 @@ class MyMathLib
     {
         if(src instanceof Vec3 && dst instanceof Vec3)
         {
-            return Vec3(dst.x - src.x, dst.y - src.y, dst.z - src.z);
+            return Vec3(dst.position.x - src.position.x, dst.position.y - src.position.y, dst.position.z - src.position.z);
         } else if (src instanceof Vec2 && dst instanceof Vec2)
         {
-            return Vec3(dst.x - src.x, dst.y - src.y);
+            return Vec3(dst.position.x - src.position.x, dst.y - src.position.y);
         }
         console.log("src and dst types are unmatched, or not [Vec2 or Vec3]")
         return NaN;
@@ -264,12 +371,14 @@ class MyMathLib
 
     static dot(vec1, vec2)
     {
-        if(src instanceof Vec3 && dst instanceof Vec3)
+        if(vec1 instanceof Vec3 && vec2 instanceof Vec3)
         {
-            return vec1.x*vec2.x + vec1.y*vec2.y + vec1.z*vec2.z;
-        } else if (src instanceof Vec2 && dst instanceof Vec2)
+            return vec1.position.x*vec2.position.x
+             + vec1.position.y*vec2.position.y + vec1.position.z*vec2.position.z;
+        } else if (vec1 instanceof Vec2 && vec2 instanceof Vec2)
         {
-            return vec1.x*vec2.x + vec1.y*vec2.y;
+            return vec1.position.x*vec2.position.x
+             + vec1.position.y*vec2.position.y;
         }
         console.log("src and dst types are unmatched, or not [Vec2 or Vec3]")
         return NaN;
@@ -277,13 +386,14 @@ class MyMathLib
 
     static cross(vec1, vec2)
     {
-        if(src instanceof Vec3 && dst instanceof Vec3)
+        if(vec1 instanceof Vec3 && vec2 instanceof Vec3)
         {
-            return Vec3(vec1.y*vec2.z - vec1.z*vec2.y, 
-                vec1.z*vec2.x + vec1.x*vec2.z, vec1.x*vec2.y - vec1.y*vec2.x);
-        } else if (src instanceof Vec2 && dst instanceof Vec2)
+            return new Vec3(vec1.position.y*vec2.position.z - vec1.position.z*vec2.position.y, 
+                vec1.position.z*vec2.position.x + vec1.position.x*vec2.position.z, 
+                vec1.position.x*vec2.position.y - vec1.position.y*vec2.position.x);
+        } else if (vec1 instanceof Vec2 && vec2 instanceof Vec2)
         {
-            return vec1.x*vec2.y - vec1.y*vec2.x;
+            return vec1.position.x*vec2.position.y - vec1.position.y*vec2.position.x;
         }
         console.log("src and dst types are unmatched, or not [Vec2 or Vec3]")
         return NaN;
