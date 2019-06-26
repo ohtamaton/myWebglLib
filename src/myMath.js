@@ -278,6 +278,36 @@ class Mat4
         return this.value;
     }
 
+    //det()
+    //{
+        //@TODO minus 
+        //Sarrus rule
+        /*
+        return this.value[0][0] * (this.value[1][1] * this.value[2][2] * this.value[3][3]
+                + this.value[1][2] * this.value[2][3] * this.value[3][1]
+                + this.value[1][3] * this.value[2][1] * this.value[3][2])            
+            - this.value[0][1] * (this.value[0][1] * this.value[2][2] * this.value[3][3]
+                + this.value[0][2] * this.value[2][3] * this.value[3][1]
+                + this.value[0][3] * this.value[2][1] * this.value[3][2])
+            + this.value[0][2] * (this.value[0][1] * this.value[1][2] * this.value[3][3]
+                + this.value[0][2] * this.value[1][3] * this.value[3][1]
+                + this.value[0][3] * this.value[1][1] * this.value[3][2])
+            - this.value[0][2] * (this.value[0][1] * this.value[1][2] * this.value[2][3]
+                + this.value[0][2] * this.value[1][3] * this.value[2][1]
+                + this.value[0][3] * this.value[1][1] * this.value[2][2]);
+        */
+    //}
+
+    trace()
+    {
+        result = 0;
+        for(i=0; i < 4; i++)
+        {
+            result += this.value[i][i];
+        }
+        return result;
+    }
+
 }
 
 class Mat3
@@ -329,6 +359,24 @@ class Mat3
             }
         }
         return this.value;
+    }
+
+    det()
+    {
+        //Sarrus rule
+        return this.value[0][0] * this.value[1][1] * this.value[2][2]
+            + this.value[0][1] * this.value[1][2] * this.value[2][0]
+            + this.value[0][2] * this.value[1][0] * this.value[2][1];
+    }
+
+    trace()
+    {
+        result = 0;
+        for(i=0; i < 3; i++)
+        {
+            result += this.value[i][i];
+        }
+        return result;
     }
 }
 
