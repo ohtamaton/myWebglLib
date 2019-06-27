@@ -87,6 +87,7 @@ class Vec3 {
      */
     zero() {
         this.position = { x: 0, y: 0, z: 0 }
+        return this;
     }
 
     /**
@@ -134,10 +135,6 @@ class Vec3 {
         rotateMatX.set(2, 1, Math.sin(thetaX));
         rotateMatX.set(2, 2, Math.cos(thetaX));
 
-    //    this.position = {
-    //        x: tX*Math.cos(theta) - tY*Math.sin(theta) + center.x,
-    //        y: tX*Math.sin(theta) + tY*Math.cos(theta) + center.x
-    //    };
     }
 
     add(vec)
@@ -183,6 +180,7 @@ class Vec2 {
     zero() 
     {
         this.position = { x: 0, y: 0 }
+        return this;
     }
 
     /**
@@ -234,7 +232,7 @@ class Mat4
         this.value[1][0] = 0; this.value[1][1] = 1; this.value[1][2] = 0; this.value[1][3] = 0;
         this.value[2][0] = 0; this.value[2][1] = 0; this.value[2][2] = 1; this.value[2][3] = 0;
         this.value[3][0] = 0; this.value[3][1] = 0; this.value[3][2] = 0; this.value[3][3] = 1;
-        return this.value;
+        return this;
     }
 
     zero()
@@ -244,7 +242,7 @@ class Mat4
         this.value[1][0] = 0; this.value[1][1] = 0; this.value[1][2] = 0; this.value[1][3] = 0;
         this.value[2][0] = 0; this.value[2][1] = 0; this.value[2][2] = 0; this.value[2][3] = 0;
         this.value[3][0] = 0; this.value[3][1] = 0; this.value[3][2] = 0; this.value[3][3] = 1;
-        return this.value;
+        return this;
     }
 
     set(x, y, v)
@@ -278,25 +276,36 @@ class Mat4
         return this.value;
     }
 
-    //det()
-    //{
-        //@TODO minus 
-        //Sarrus rule
-        /*
+    det()
+    {
         return this.value[0][0] * (this.value[1][1] * this.value[2][2] * this.value[3][3]
                 + this.value[1][2] * this.value[2][3] * this.value[3][1]
-                + this.value[1][3] * this.value[2][1] * this.value[3][2])            
+                + this.value[1][3] * this.value[2][1] * this.value[3][2]
+                - this.value[1][3] * this.value[2][2] * this.value[3][1]
+                - this.value[1][2] * this.value[2][1] * this.value[3][3]
+                - this.value[1][1] * this.value[2][3] * this.value[3][2])
             - this.value[0][1] * (this.value[0][1] * this.value[2][2] * this.value[3][3]
                 + this.value[0][2] * this.value[2][3] * this.value[3][1]
-                + this.value[0][3] * this.value[2][1] * this.value[3][2])
+                + this.value[0][3] * this.value[2][1] * this.value[3][2]
+                - this.value[0][3] * this.value[2][2] * this.value[3][1]
+                - this.value[0][2] * this.value[2][1] * this.value[3][3]
+                - this.value[0][1] * this.value[2][3] * this.value[3][2]
+                )
             + this.value[0][2] * (this.value[0][1] * this.value[1][2] * this.value[3][3]
                 + this.value[0][2] * this.value[1][3] * this.value[3][1]
-                + this.value[0][3] * this.value[1][1] * this.value[3][2])
+                + this.value[0][3] * this.value[1][1] * this.value[3][2]
+                - this.value[0][3] * this.value[2][1] * this.value[3][1]
+                - this.value[0][2] * this.value[1][1] * this.value[3][3]
+                - this.value[0][1] * this.value[1][3] * this.value[3][2]
+                )
             - this.value[0][2] * (this.value[0][1] * this.value[1][2] * this.value[2][3]
                 + this.value[0][2] * this.value[1][3] * this.value[2][1]
-                + this.value[0][3] * this.value[1][1] * this.value[2][2]);
-        */
-    //}
+                + this.value[0][3] * this.value[1][1] * this.value[2][2]
+                - this.value[0][3] * this.value[1][2] * this.value[2][1]
+                - this.value[0][2] * this.value[1][1] * this.value[2][3]
+                - this.value[0][1] * this.value[1][3] * this.value[2][2]
+                );        
+    }
 
     trace()
     {
@@ -305,6 +314,158 @@ class Mat4
         {
             result += this.value[i][i];
         }
+        return result;
+    }
+
+    inverse()
+    {
+        let det = this.det();
+        let result = new Float32Array(4, 4);
+        
+        result[0][0] = (
+            this.value[1][1] * this.value[2][2] * this.value[3][3]
+            + this.value[1][2] * this.value[2][3] * this.value[3][1]
+            + this.value[1][3] * this.value[2][1] * this.value[3][2]
+            - this.value[1][3] * this.value[2][2] * this.value[3][1]
+            - this.value[1][2] * this.value[2][1] * this.value[3][3]
+            - this.value[1][1] * this.value[2][3] * this.value[3][2]
+        ) / det;
+        
+        result[0][1] = -1 * (
+            this.value[0][1] * this.value[2][2] * this.value[3][3]
+            + this.value[0][2] * this.value[2][3] * this.value[3][1]
+            + this.value[0][3] * this.value[2][1] * this.value[3][2]
+            - this.value[0][3] * this.value[2][2] * this.value[3][1]
+            - this.value[0][2] * this.value[2][1] * this.value[3][3]
+            - this.value[0][1] * this.value[2][3] * this.value[3][2]
+        ) / det;
+
+        result[0][2] = (
+            this.value[0][1] * this.value[1][2] * this.value[3][3]
+            + this.value[0][2] * this.value[1][3] * this.value[3][1]
+            + this.value[0][3] * this.value[1][1] * this.value[3][2]
+            - this.value[0][3] * this.value[2][1] * this.value[3][1]
+            - this.value[0][2] * this.value[1][1] * this.value[3][3]
+            - this.value[0][1] * this.value[1][3] * this.value[3][2]
+        ) / det;
+
+        result[0][3] = -1 * (
+            this.value[0][1] * this.value[1][2] * this.value[2][3]
+            + this.value[0][2] * this.value[1][3] * this.value[2][1]
+            + this.value[0][3] * this.value[1][1] * this.value[2][2]
+            - this.value[0][3] * this.value[1][2] * this.value[2][1]
+            - this.value[0][2] * this.value[1][1] * this.value[2][3]
+            - this.value[0][1] * this.value[1][3] * this.value[2][2]
+        ) / det;
+        
+        result[1][0] = -1 * (
+            this.value[1][0] * this.value[2][2] * this.value[3][3]
+            + this.value[1][2] * this.value[2][3] * this.value[3][0]
+            + this.value[1][3] * this.value[2][0] * this.value[3][2]
+            - this.value[1][3] * this.value[2][2] * this.value[3][0]
+            - this.value[1][2] * this.value[2][0] * this.value[3][3]
+            - this.value[1][0] * this.value[2][3] * this.value[3][2]
+        ) /det;
+
+        result[1][1] = (
+            this.value[0][0] * this.value[2][2] * this.value[3][3]
+            + this.value[0][2] * this.value[2][3] * this.value[3][0]
+            + this.value[0][3] * this.value[2][0] * this.value[3][2]
+            - this.value[0][3] * this.value[2][2] * this.value[3][0]
+            - this.value[0][2] * this.value[2][0] * this.value[3][3]
+            - this.value[0][0] * this.value[2][3] * this.value[3][2]
+        ) /det;
+
+        result[1][2] = -1 * (
+            this.value[0][0] * this.value[1][2] * this.value[3][3]
+            + this.value[0][2] * this.value[1][3] * this.value[3][0]
+            + this.value[0][3] * this.value[1][0] * this.value[3][2]
+            - this.value[0][3] * this.value[1][2] * this.value[3][0]
+            - this.value[0][2] * this.value[1][0] * this.value[3][3]
+            - this.value[0][0] * this.value[1][3] * this.value[3][2]
+        ) /det;
+
+        result[1][3] = (
+            this.value[0][0] * this.value[1][2] * this.value[2][3]
+            + this.value[0][2] * this.value[1][3] * this.value[2][0]
+            + this.value[0][3] * this.value[1][0] * this.value[2][2]
+            - this.value[0][3] * this.value[1][2] * this.value[2][0]
+            - this.value[0][2] * this.value[1][0] * this.value[2][3]
+            - this.value[0][0] * this.value[1][3] * this.value[2][2]
+        ) /det;
+
+        result[2][0] = (
+            this.value[1][0] * this.value[2][1] * this.value[3][3]
+            + this.value[1][1] * this.value[2][3] * this.value[3][0]
+            + this.value[1][3] * this.value[2][0] * this.value[3][1]
+            - this.value[1][3] * this.value[2][1] * this.value[3][0]
+            - this.value[1][1] * this.value[2][0] * this.value[3][3]
+            - this.value[1][0] * this.value[2][3] * this.value[3][1]
+        ) /det;
+
+        result[2][1] = -1 * (
+            this.value[0][0] * this.value[2][1] * this.value[3][3]
+            + this.value[0][1] * this.value[2][3] * this.value[3][0]
+            + this.value[0][3] * this.value[2][0] * this.value[3][1]
+            - this.value[0][3] * this.value[2][1] * this.value[3][0]
+            - this.value[0][1] * this.value[2][0] * this.value[3][3]
+            - this.value[0][0] * this.value[2][3] * this.value[3][1]
+        ) /det;
+
+        result[2][2] = (
+            this.value[0][0] * this.value[1][1] * this.value[3][3]
+            + this.value[0][1] * this.value[1][3] * this.value[3][0]
+            + this.value[0][3] * this.value[1][0] * this.value[3][1]
+            - this.value[0][3] * this.value[1][1] * this.value[3][0]
+            - this.value[0][1] * this.value[1][0] * this.value[3][3]
+            - this.value[0][0] * this.value[1][3] * this.value[3][1]
+        ) /det;
+
+        result[2][3] = -1 * (
+            this.value[0][0] * this.value[1][1] * this.value[2][3]
+            + this.value[0][1] * this.value[1][3] * this.value[2][0]
+            + this.value[0][3] * this.value[1][0] * this.value[2][1]
+            - this.value[0][3] * this.value[1][1] * this.value[2][0]
+            - this.value[0][1] * this.value[1][0] * this.value[2][3]
+            - this.value[0][0] * this.value[1][3] * this.value[2][1]
+        ) /det;
+
+        result[3][0] = -1 * (
+            this.value[1][0] * this.value[2][1] * this.value[3][2]
+            + this.value[1][1] * this.value[2][2] * this.value[3][0]
+            + this.value[1][2] * this.value[2][0] * this.value[3][1]
+            - this.value[1][2] * this.value[2][1] * this.value[3][0]
+            - this.value[1][1] * this.value[2][0] * this.value[3][2]
+            - this.value[1][0] * this.value[2][2] * this.value[3][1]
+        ) /det;
+
+        result[3][1] = (
+            this.value[0][0] * this.value[2][1] * this.value[3][2]
+            + this.value[0][1] * this.value[2][2] * this.value[3][0]
+            + this.value[0][2] * this.value[2][0] * this.value[3][1]
+            - this.value[0][2] * this.value[2][1] * this.value[3][0]
+            - this.value[0][1] * this.value[2][0] * this.value[3][2]
+            - this.value[0][0] * this.value[2][2] * this.value[3][1]
+        ) /det;
+
+        result[3][2] = -1 * (
+            this.value[0][0] * this.value[1][1] * this.value[3][2]
+            + this.value[0][1] * this.value[1][2] * this.value[3][0]
+            + this.value[0][2] * this.value[1][0] * this.value[3][1]
+            - this.value[0][2] * this.value[1][1] * this.value[3][0]
+            - this.value[0][1] * this.value[1][0] * this.value[3][2]
+            - this.value[0][0] * this.value[1][2] * this.value[3][1]
+        ) /det
+
+        result[3][3] = (
+            this.value[0][0] * this.value[1][1] * this.value[2][2]
+            + this.value[0][1] * this.value[1][2] * this.value[2][0]
+            + this.value[0][2] * this.value[1][0] * this.value[2][1]
+            - this.value[0][2] * this.value[1][1] * this.value[2][0]
+            - this.value[0][1] * this.value[1][0] * this.value[2][2]
+            - this.value[0][0] * this.value[1][2] * this.value[2][1]
+        ) /det
+
         return result;
     }
 
@@ -318,7 +479,7 @@ class Mat3
         this.value[0][0] = 1; this.value[0][1] = 0; this.value[0][2] = 0; 
         this.value[1][0] = 0; this.value[1][1] = 1; this.value[1][2] = 0; 
         this.value[2][0] = 0; this.value[2][1] = 0; this.value[2][2] = 1; 
-        return this.value;
+        return this;
     }
 
     zero()
@@ -327,7 +488,7 @@ class Mat3
         this.value[0][0] = 0; this.value[0][1] = 0; this.value[0][2] = 0; 
         this.value[1][0] = 0; this.value[1][1] = 0; this.value[1][2] = 0; 
         this.value[2][0] = 0; this.value[2][1] = 0; this.value[2][2] = 0; 
-        return this.value;
+        return this;
     }
 
     set(x, y, v)
@@ -378,6 +539,59 @@ class Mat3
         }
         return result;
     }
+
+    inverse()
+    {
+        let det = this.det();
+        let result = new Float32Array(3, 3);
+
+        result[0][0] = (
+            this.value[1][1] * this.value[2][2]
+            - this.value[1][2] * this.value[2][1]
+        ) / det;
+
+        result[0][1] = -1 * (
+            this.value[0][1] * this.value[2][2]
+            - this.value[0][2] * this.value[2][1]
+        ) / det;
+
+        result[0][2] = (
+            this.value[0][1] * this.value[1][2]
+            - this.value[0][2] * this.value[1][1]
+        ) / det;
+
+        result[1][0] = -1 * (
+            this.value[1][0] * this.value[2][2]
+            - this.value[1][2] * this.value[2][0]
+        ) / det;
+
+        result[1][1] = (
+            this.value[0][0] * this.value[2][2]
+            - this.value[0][2] * this.value[2][0]
+        ) / det;
+
+        result[1][2] = -1 * (
+            this.value[0][0] * this.value[1][2]
+            - this.value[0][2] * this.value[1][0]
+        ) / det;
+
+        result[2][0] = (
+            this.value[1][0] * this.value[2][1]
+            - this.value[1][1] * this.value[2][0]
+        ) / det;
+
+        result[2][1] = (
+            this.value[0][0] * this.value[2][1]
+            - this.value[0][1] * this.value[2][0]
+        ) / det;
+
+        result[2][2] = (
+            this.value[0][0] * this.value[1][1]
+            - this.value[0][1] * this.value[1][0]
+        ) / det;
+
+        return result;
+    }
 }
 
 class Qtn
@@ -389,15 +603,43 @@ class Qtn
         }
     }
 
-    inverse()
+    conjugate()
     {
-        let inv = new Qtn(-this.x, -this.y, -this.z, this.w);
+        return new Qtn(-this.x, -this.y, -this.z, this.w);
+    }
+
+    static multiply(qtn2)
+    {
+        let qtn1 = this;
+        return new Qtn(
+            qtn1.w*qtn2.x - qtn1.z*qtn2.y + qtn1.y*qtn2.z + qtn1.x*qtn2.w, 
+            qtn1.z*qtn2.x + qtn1.w*qtn2.y - qtn1.x*qtn2.z + qtn1.y*qtn2.w,
+           -qtn1.y*qtn2.x + qtn1.x*qtn2.y + qtn1.w*qtn2.z + qtn1.z*qtn2.w,
+           -qtn1.x*qtn2.x - qtn1.y*qtn2.y - qtn1.z*qtn2.z + qtn1.w*qtn2.w
+        );
     }
 
 }
 
 class MyMathLib
 {
+
+    static rotate(theta, up, vec3)
+    {
+        let qtn = new Qtn(
+            up.x * Math.sin(theta/2), 
+            up.y * Math.sin(theta/2), 
+            up.z * Math.sin(theta/2), 
+            Math.cos(theta/2)
+        );
+        let p = new Qtn(vec3.x, vec3.y, vec3.z, 0);
+        let qtn_bar = qtn.conjugate();
+        let result = qtn.multiply(p).multiply(qtn_bar);
+        vec3.x = result.x;
+        vec3.y = result.y;
+        vec3.z = result.z;
+        return vec3;
+    }
 
     static diffVec(src, dst)
     {
