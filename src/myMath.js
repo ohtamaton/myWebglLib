@@ -261,7 +261,7 @@ class Mat4
                 this.value[i][j] += mat[i][j];
             }
         }
-        return this.value;
+        return this;
     }
 
     sub(mat)
@@ -273,7 +273,7 @@ class Mat4
                 this.value[i][j] -= mat[i][j];
             }
         }
-        return this.value;
+        return this;
     }
 
     det()
@@ -507,7 +507,7 @@ class Mat3
                 this.value[i][j] += mat[i][j];
             }
         }
-        return this.value;
+        return this;
     }
 
     sub(mat)
@@ -519,7 +519,7 @@ class Mat3
                 this.value[i][j] -= mat[i][j];
             }
         }
-        return this.value;
+        return this;
     }
 
     det()
